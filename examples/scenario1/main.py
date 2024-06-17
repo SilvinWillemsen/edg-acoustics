@@ -6,6 +6,7 @@ import glob
 import numpy
 import scipy.io
 import edg_acoustics
+import matplotlib as mpl;
 
 # endregion
 
@@ -24,7 +25,7 @@ real_valued_impedance_boundary = [
     # {"label": 11, "RI": 0.9}
 ]  # extra labels for real-valued impedance boundary condition, if needed. The label should be the similar to the label in BC_labels. Since it's frequency-independent, only "RI", the real-valued reflection coefficient, is required. If not needed, just clear the elements of this list and keep the empty list.
 
-mesh_name = "scenario_2_coarser.msh"  # name of the mesh file. The mesh file should be in the same folder as this script.
+mesh_name = "testroomWorking.msh"  # name of the mesh file. The mesh file should be in the same folder as this script.
 monopole_xyz = numpy.array([3.04, 2.59, 1.62])  # x,y,z coordinate of the source in the room
 halfwidth = 0.23  # halfwidth of the initial Gaussian source in meters. It determines the width of the initial Gaussian source in the simulation, which is used to control the upper limit of frequency content of the source signal. For simulations below 500 Hz, a value of 0.2 is recommended. For simulatoins between 500 and 1000 Hz, a value of 0.15 is recommended. For simulations between 1K and 3K Hz, a value of 0.075 is recommended.
 
@@ -35,7 +36,12 @@ CFL = 0.5  # CFL number, default is 0.5.
 recx = numpy.array([4.26])
 recy = numpy.array([1.76])
 recz = numpy.array([1.62])
-rec = numpy.vstack((recx, recy, recz))  # dim:[3,n_rec]
+recx2 = numpy.array([4.06])
+recy2 = numpy.array([1.76])
+recz2 = numpy.array([1.62])
+rec1 = numpy.vstack((recx, recy, recz))  # dim:[3,n_rec]
+rec2 = numpy.vstack((recx2, recy2, recz2))  # dim:[3,n_rec]
+rec = numpy.hstack((rec1, rec2));
 
 impulse_length = 2  # total simulation time in seconds
 save_every_Nstep = 10  # save the results every N steps
@@ -53,6 +59,7 @@ for material, label in BC_labels.items():
     if material == "hard wall":
         BC_para.append({"label": label, "RI": 0.99})
     else:
+        
         mat_files = glob.glob(f"{os.path.split(os.path.abspath(__file__))[0]}/{material}*.mat")
 
         # if mat_files is empty, raise an error
@@ -112,6 +119,7 @@ sim.time_integration(
 results = edg_acoustics.Monopole_postprocessor(sim, 1)
 results.apply_correction()
 
+mpl.pyplot.plot(results.IRold)
 
 result_filename = os.path.join(os.path.split(os.path.abspath(__file__))[0], result_filename)
 results.write_results(result_filename, "mat")

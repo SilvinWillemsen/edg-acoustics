@@ -68,7 +68,7 @@ dev = [
     "tox",
     "myst_parser",
 ]
-publishing = ["twine", "wheel"]
+#publishing = ["twine", "wheel"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
